@@ -18,8 +18,9 @@ git clone https://github.com/LauraMcCluskey7/Triplet_repeats.git
 
 ## Run from the command line:
 
+```
 python triplet_repeat_automation.py <gene> <worksheet_number>
-
+```
 
 
 ## Create the executable:
