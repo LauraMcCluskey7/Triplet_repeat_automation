@@ -20,7 +20,10 @@ git clone https://github.com/LauraMcCluskey7/Triplet_repeats.git
 
 ```
 python triplet_repeat_automation.py <gene> <worksheet_number>
+
 ```
+Input the gene name and	worksheet number when prompted.
+
 
 
 ## Create the executable:
@@ -33,7 +36,7 @@ pip install pyinstaller
 ```
 
 ```
-pyinstaller get_triplet_repeats-3_alleles.py
+pyinstaller triplet_repeat_automation.py
 
 ```
 
@@ -54,3 +57,4 @@ pyinstaller get_triplet_repeats-3_alleles.py
 python -m unittest discover
 
 ```
+
