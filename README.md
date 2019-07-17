@@ -28,6 +28,10 @@ pyinstaller get_triplet_repeats-3_alleles.py
 ```
 
 
+## run tests in project root directory
+
+python -m unittests discover
+
 
 ## To run:
 
