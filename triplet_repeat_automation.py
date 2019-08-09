@@ -20,16 +20,20 @@ def get_triplets_table(gene, worksheet):
         file.write("Genemapper file could not be found- check file name")
         file.close()    
 
+    #check the extra column hasn't been deleted in editing process
+    if (len(triplets.columns)==41):
+        triplets["Extra_column"]=""
+    
     #extract the peak sizes columns from the table
 
     triplets_table=triplets.iloc[:,[0,2,6,10]]
-
     #split the first column to extract the sample id
 
     sample=triplets_table["Sample File"].str.split("_", n=2, expand=True)
     sample2=list(sample[1])
     triplets_table["Sample"]=sample2
     triplets_table=triplets_table.iloc[:,[0,4,1,2,3]]
+
 
     #Remove the Normal, Control and NTC rows
 
@@ -38,11 +42,6 @@ def get_triplets_table(gene, worksheet):
     triplets_table=triplets_table[triplets_table['Sample']!="NTC"] 
 
     #Round 1st peak column to the nearest integer
-
-    triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: round(x))
-
-    #Round 2nd peak column to the nearest integer
-
     triplets_table_num_rows=triplets_table.shape[0]
     a=0
     while (a<triplets_table_num_rows):
@@ -54,7 +53,8 @@ def get_triplets_table(gene, worksheet):
         triplets_table.iloc[a,2]=number
         a=a+1
 
-    #Round 3rd peak column to the nearest integer
+
+    #Round 2nd peak column to the nearest integer
 
     triplets_table_num_rows=triplets_table.shape[0]
     a=0
@@ -65,6 +65,20 @@ def get_triplets_table(gene, worksheet):
         else:
            number=round(number)
         triplets_table.iloc[a,3]=number
+        a=a+1
+
+
+    #Round 3rd peak column to the nearest integer
+
+    triplets_table_num_rows=triplets_table.shape[0]
+    a=0
+    while (a<triplets_table_num_rows):
+        number=triplets_table.iloc[a,4]
+        if numpy.isnan(number):
+            number=None
+        else:
+           number=round(number)
+        triplets_table.iloc[a,4]=number
         a=a+1
 
     return(triplets,triplets_table)
@@ -312,19 +326,24 @@ def get_number_of_triplet_repeats(triplets_table):
     difference1=[]
     triplets_table_num_rows=triplets_table.shape[0]
     while (a<triplets_table_num_rows):
-        difference=triplets_table.iloc[a,2]-triplets_table.iloc[a,5]
-        if (difference==0):
-            triplets_table.iloc[a,8]=int(triplets_table.iloc[a,8])
-            difference=triplets_table.iloc[a,8]+difference
-            difference=difference.round()
-            difference1.append(difference)
+        if (numpy.isnan(triplets_table.iloc[a,2])):
+            difference1.append("NaN")
         else:
-            difference=difference/3
-            triplets_table.iloc[a,8]=int(triplets_table.iloc[a,8])
-            difference=triplets_table.iloc[a,8]+difference
-            difference=difference.round()
-            difference=int(difference)
-            difference1.append(difference)    
+            triplets_table.iloc[a,2]=int(triplets_table.iloc[a,2])
+            triplets_table.iloc[a,5]=int(triplets_table.iloc[a,5])
+            difference=triplets_table.iloc[a,2]-triplets_table.iloc[a,5]
+            if (difference==0):
+                triplets_table.iloc[a,8]=int(triplets_table.iloc[a,8])
+                difference=triplets_table.iloc[a,8]+difference
+                difference=difference.round()
+                difference1.append(difference)
+            else:
+                difference=difference/3
+                triplets_table.iloc[a,8]=int(triplets_table.iloc[a,8])
+                difference=triplets_table.iloc[a,8]+difference
+                difference=difference.round()
+                difference=int(difference)
+                difference1.append(difference)    
         a=a+1
     
     triplets_table["Repeats_1"]=difference1
@@ -387,6 +406,7 @@ def get_number_of_triplet_repeats(triplets_table):
     return(triplets_table)
 
 
+
 def format_columns(triplets_table, controls, worksheet, gene):
 
     '''
@@ -399,6 +419,21 @@ def format_columns(triplets_table, controls, worksheet, gene):
 
     #Extract the sample, peak sizes and repeats columns
     triplets_table=triplets_table.iloc[:,[0,2,3,4,11,12,13]]
+
+    
+    a=0
+    numbers=[]
+    triplets_table_num_rows=triplets_table.shape[0]
+    while (a<triplets_table_num_rows):
+        number=triplets_table.iloc[a,1]
+        if  (numpy.isnan(number)):
+            number="NaN"
+        else:
+            number=int(number)
+        numbers.append(number)
+        a=a+1
+    triplets_table["Size 1"]=numbers
+
 
     a=0
     numbers=[]
