@@ -1,6 +1,8 @@
 import pandas
 import numpy
-
+import xlwings
+from openpyxl import Workbook
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 def get_triplets_table(gene, worksheet):
 
@@ -109,8 +111,10 @@ def match_control_samples_with_references(triplets,gene):
     controls=pandas.concat([controls_1,controls_2])
     controls=controls.iloc[:,[43,2,6]]
 
-    triplet_control_file=pandas.read_excel("Triplet_controls.xlsx",gene)
-    triplet_control_file=pandas.DataFrame(triplet_control_file)
+    triplets_excel_input=xlwings.Book("Triplet_controls.xlsx")
+    triplet_control_file=triplets_excel_input.sheets[gene]
+    triplet_control_file=triplet_control_file['A1:G100'].options(pandas.DataFrame,index=False, header=True).value
+    print (triplet_control_file)
 
     #split the peaks and triplets columns
 
@@ -334,8 +338,7 @@ def get_number_of_triplet_repeats(triplets_table):
             difference=triplets_table.iloc[a,2]-triplets_table.iloc[a,5]
             if (difference==0):
                 triplets_table.iloc[a,8]=int(triplets_table.iloc[a,8])
-                difference=triplets_table.iloc[a,8]+difference
-                difference=difference.round()
+                difference=triplets_table.iloc[a,8]
                 difference1.append(difference)
             else:
                 difference=difference/3
@@ -392,6 +395,7 @@ def get_number_of_triplet_repeats(triplets_table):
                 triplets_table.iloc[a,10]=int(triplets_table.iloc[a,10])
                 difference=triplets_table.iloc[a,10]
                 difference3.append(difference)
+
             else:
                 difference=difference/3
                 triplets_table.iloc[a,10]=int(triplets_table.iloc[a,10])
@@ -462,6 +466,25 @@ def format_columns(triplets_table, controls, worksheet, gene):
     triplets_table["Size 3"]=numbers
 
     triplets_table.to_csv(worksheet+"_"+gene+"_triplets_output.txt", index=None, sep='\t')
+
+    wb=Workbook()
+    ws1=wb.create_sheet("Triplet_results")
+    for row in dataframe_to_rows(triplets_table):
+        ws1.append(row)
+    ws1["K2"]="Worksheet:"
+    ws1["L2"]=worksheet
+    ws1["K5"]="First checker:"
+    ws1["K6"]="Date:"
+    ws1["K7"]="Second checker:"
+    ws1["K8"]="Date:"    
+
+    ws1.column_dimensions['B'].width=60
+    ws1.column_dimensions['F'].width=10
+    ws1.column_dimensions['G'].width=10
+    ws1.column_dimensions['H'].width=10
+    ws1.column_dimensions['K'].width=20
+
+    wb.save(worksheet+"_"+gene+"_triplets_output_excel.xlsx")
 
     return(triplets_table)
 
