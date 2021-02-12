@@ -1,0 +1,41 @@
+name: triplets_tool
+channels:
+  - defaults
+dependencies:
+  - altgraph=0.17
+  - blas=1.0
+  - ca-certificates=2021.1.19
+  - certifi=2020.12.5
+  - comtypes=1.1.8
+  - future=0.18.2
+  - intel-openmp=2020.2
+  - macholib=1.14
+  - mkl=2020.2
+  - mkl-service=2.3.0
+  - mkl_fft=1.2.0
+  - mkl_random=1.1.1
+  - numpy=1.19.2
+  - numpy-base=1.19.2
+  - openssl=1.1.1i
+  - pandas=1.2.1
+  - pefile=2019.4.18
+  - pip=20.3.3
+  - pycryptodome=3.9.9
+  - pyinstaller=3.6
+  - python=3.8.5
+  - python-dateutil=2.8.1
+  - pytz=2021.1
+  - pywin32=227
+  - pywin32-ctypes=0.2.0
+  - setuptools=52.0.0
+  - six=1.15.0
+  - sqlite=3.33.0
+  - vc=14.2
+  - vs2015_runtime=14.27.29016
+  - wheel=0.36.2
+  - wincertstore=0.2
+  - xlrd=2.0.1
+  - xlwings=0.22.0
+  - zlib=1.2.11
+prefix: C:\Users\Laura\Miniconda3\envs\triplets_tool
+
