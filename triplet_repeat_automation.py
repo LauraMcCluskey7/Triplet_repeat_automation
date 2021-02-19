@@ -1,3 +1,12 @@
+
+'''
+triplet_repeat_automation.py 
+
+Calculates the number of triplet repeats for sample peak sizes outputted from Genemapper.
+Author: Laura McCluskey
+Version 1.0.0
+'''
+
 import pandas
 import numpy
 import xlwings
@@ -55,7 +64,6 @@ def match_control_samples_with_references(triplets,gene):
      '''
 
     #Add sampleid column to triplets dataframe
-
     sample=triplets["Sample File"].str.split("_", n=3, expand=True)
     sample2=list(sample[1])
     triplets["Sample"]=sample2
@@ -67,15 +75,18 @@ def match_control_samples_with_references(triplets,gene):
     controls_1=triplets[triplets['Sample']=="Normal"]
     controls_2=triplets[triplets['Sample']=="Control"]
 
-    #Read in file of reference controls- xlwings used to allow reading of password protected excel spreadsheet
+    controls=pandas.concat([controls_1, controls_2])
+    controls=controls.filter(items=["Sample2", "Size 1", "Size 2"])
 
+    #Read in file of reference controls- xlwings used to allow reading of password protected excel spreadsheet
     if (gene=="FRAX"):
-        triplets_excel_input=xlwings.Workbook("Triplet_controls_FRAX.xlsx")
+        triplets_excel_input=xlwings.Book("Triplet_controls_FRAX.xlsx")
     else:
-        triplets_excel_input=xlwings.Workbook("Triplet_controls_FRAX.xlsx")
+        triplets_excel_input=xlwings.Book("Triplet_controls.xlsx")
 
     triplet_control_file=triplets_excel_input.sheets[gene]
     triplet_control_file=triplet_control_file['A1:G1000000'].options(pandas.DataFrame,index=False, header=True).value
+
 
     #split the peaks and triplets columns
     peaks=triplet_control_file["Exp_peaks"].str.split("/", n=2, expand=True)
@@ -87,7 +98,7 @@ def match_control_samples_with_references(triplets,gene):
 
 
     #only keep the rows of the reference control table that match sample ids of the controls used
-    new_table=pandas.merge(left=controls, right=triplet_control_file, how='left', left_on='Sample2', right_on='Unnamed: 1')
+    new_table=pandas.merge(left=controls, right=triplet_control_file, how='left', left_on='Sample2', right_on='reference_sample')
     controls=new_table.filter(items=["Sample2", "Size 1","Size 2", "peaks_1", "peaks_2", "triplets_1", "triplets_2"])
 
     #find out if the control value is within +/- 3 of the reference control
@@ -95,8 +106,8 @@ def match_control_samples_with_references(triplets,gene):
     controls['peaks_2']=controls['peaks_2'].apply(lambda x: int(x))
     controls["difference in peak 1"]= controls["peaks_1"]-controls["Size 1"]
     controls["difference in peak 2"]= controls["peaks_2"]-controls["Size 2"]
-    controls_filtered=controls[controls["difference in peak 1"].between(-3,3)]
-    controls_filtered=controls_filtered[controls_filtered["difference in peak 2"].between(-3,3)]
+    controls_filtered=controls[controls["difference in peak 1"].between(-3,3, inclusive=True)]
+    controls_filtered=controls_filtered[controls_filtered["difference in peak 2"].between(-3,3, inclusive=True)]
 
     #only continue with program if control value is within +/- 3 of the reference control
     if (controls_filtered.shape[0] ==controls.shape[0]):
@@ -115,9 +126,8 @@ def get_closest_value(x, array):
     Input: Each value of Size columns in triplets table and an array of all peak sizes in controls table
     Output: size of peak in controls table closest to value of input
     '''
-
-    if numpy.isnan(x):
-        value="NaN"
+    if (x==numpy.nan):
+        value=numpy.nan
     else:
         array_minus_x=abs(array-x)
         array_minus_x=array_minus_x.tolist()
@@ -135,23 +145,23 @@ def find_closest_control_peak_to_sample_peaks(triplets_table,controls):
     '''
 
     #round the values of the peak columns
-
     controls['Size 1']=controls['Size 1'].apply(lambda x: round(x))
     controls['Size 2']=controls['Size 2'].apply(lambda x: round(x))
 
-    #make a list of the peak sizes in the reference controls file
-    
+    #make a list of the peak sizes in the reference controls file  
     list1=list(controls["Size 1"])
     list2=list(controls["Size 2"])
     list3=list(set(list1+list2))
     peak_array=numpy.array(list3)
 
-
     #match the peak sizes in the triplets table and the reference controls file using get_closest_value_function
+    triplets_table["Size 1"]=triplets_table['Size 1'].apply(lambda x: numpy.nan if x==None else x)
+    triplets_table["Size 2"]=triplets_table['Size 2'].apply(lambda x: numpy.nan if x==None else x)
+    triplets_table["Size 3"]=triplets_table['Size 3'].apply(lambda x: numpy.nan if x==None else x)
+
     triplets_table["closest_1"]=triplets_table['Size 1'].apply(lambda x: get_closest_value(x,peak_array))
     triplets_table["closest_2"]=triplets_table['Size 2'].apply(lambda x: get_closest_value(x,peak_array))
     triplets_table["closest_3"]=triplets_table['Size 3'].apply(lambda x: get_closest_value(x,peak_array))
-
 
     #Make a table with two columns (Size and triplets) from the reference controls table
     controls1=controls.filter(items=["Size 1","triplets_1"])
@@ -203,7 +213,7 @@ def get_number_of_triplet_repeats(triplets_table):
     triplets_table['Repeats_2']=triplets_table['Repeats_2'].apply(lambda x: "NaN" if numpy.isnan(x) else round(x))
     triplets_table=triplets_table.filter(items=["Sample File","Sample", "Size 1", "Size 2", "Size 3", "closest_1", "closest_2", "closest_3","repeats_closest_1", "repeats_closest_2", "repeats_closest_3", "Repeats_1", "Repeats_2"])
 
-    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: numpy.nan if numpy.isnan(x) else int(x)) 
+    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: numpy.nan if numpy.nan else int(x)) 
     triplets_table["closest_3"]=triplets_table['closest_3'].apply(lambda x:  numpy.nan if x=="NaN" else int(x))
     triplets_table["repeats_closest_3"]=triplets_table['repeats_closest_3'].apply(lambda x:  float(x))
     triplets_table['difference']=(triplets_table["Size 3"]-triplets_table["closest_3"])/3
@@ -219,7 +229,9 @@ def format_columns(triplets_table, controls, worksheet, gene):
 
     #Extract the sample, peak sizes and repeats columns and output table to a text file
     triplets_table=triplets_table.filter(items=["Sample File", "Size 1", "Size 2", "Size 3", "Repeats_1", "Repeats_2", "Repeats_3"])
-    
+    triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: "NaN" if numpy.isnan(x) else int(x))
+    triplets_table['Size 2']=triplets_table['Size 2'].apply(lambda x: "NaN" if numpy.isnan(x) else int(x))
+    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: "NaN" if numpy.isnan(x) else int(x))
     triplets_table.to_csv(worksheet+"_"+gene+"_triplets_output.txt", index=None, sep='\t')
 
     #output the results to an excel spreadsheet with checking boxes
