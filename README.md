@@ -1,11 +1,5 @@
 # Triplet_repeats
 
-## Requirements:
-
-* numpy
-* pandas
-* xlrd
-* pyinstaller 
 
 
 ## Download the directory:
@@ -16,13 +10,14 @@ git clone https://github.com/LauraMcCluskey7/Triplet_repeats.git
 ```
 
 
-## Run from the command line:
+##Create and activate the conda environment
 
 ```
-python triplet_repeat_automation.py <gene> <worksheet_number>
+conda env create -f triplets_environment.yml
+
+conda activate triplets_environment
 
 ```
-Input the gene name and	worksheet number when prompted.
 
 
 
@@ -31,9 +26,6 @@ Input the gene name and	worksheet number when prompted.
 
 The executable file must be created on a windows platform
 
-```
-pip install pyinstaller
-```
 
 ```
 pyinstaller triplet_repeat_automation.py
@@ -49,12 +41,13 @@ pyinstaller triplet_repeat_automation.py
 
 
 
-## Run tests in the project root directory
 
+
+## Run the tests:
 
 ```
 
-python -m unittest discover
+python -m unittest test_triplet_repeats.py
 
 ```
 
