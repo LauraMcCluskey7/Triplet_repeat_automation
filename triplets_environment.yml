@@ -1,4 +1,4 @@
-name: triplets_tool
+name: Triplets_tool
 channels:
   - defaults
 dependencies:
@@ -7,8 +7,10 @@ dependencies:
   - ca-certificates=2021.1.19
   - certifi=2020.12.5
   - comtypes=1.1.8
+  - et_xmlfile=1.0.1
   - future=0.18.2
   - intel-openmp=2020.2
+  - jdcal=1.4.1
   - macholib=1.14
   - mkl=2020.2
   - mkl-service=2.3.0
@@ -16,6 +18,7 @@ dependencies:
   - mkl_random=1.1.1
   - numpy=1.19.2
   - numpy-base=1.19.2
+  - openpyxl=3.0.6
   - openssl=1.1.1i
   - pandas=1.2.1
   - pefile=2019.4.18
@@ -37,5 +40,3 @@ dependencies:
   - xlrd=2.0.1
   - xlwings=0.22.0
   - zlib=1.2.11
-prefix: C:\Users\Laura\Miniconda3\envs\triplets_tool
-
