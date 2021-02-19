@@ -47,7 +47,7 @@ pyinstaller triplet_repeat_automation.py
 
 ```
 
-python -m unittest test_triplet_repeats.py
+python -m unittest test_triplets_repeats.py
 
 ```
 
