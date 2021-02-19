@@ -10,7 +10,7 @@ git clone https://github.com/LauraMcCluskey7/Triplet_repeats.git
 ```
 
 
-##Create and activate the conda environment
+## Create and activate the conda environment
 
 ```
 conda env create -f triplets_environment.yml
