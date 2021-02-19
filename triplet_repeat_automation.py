@@ -28,7 +28,7 @@ def get_triplets_table(gene, worksheet):
     except:
         file=open(worksheet+"_"+gene+"_triplets_output.txt", 'w')
         file.write("Genemapper file could not be found- check file name")
-        file.close()    
+        file.close()
 
     #check the extra column needed on the end of the table hasn't been deleted in editing process
     if (len(triplets.columns)==41):
@@ -196,7 +196,6 @@ def get_number_of_triplet_repeats(triplets_table):
     Add his difference to the number of repeats in the control, to find the number of repeats the sample peak correlates to.
     Repeat this for all three peaks for all samples.
     '''
-
     triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: int(x)) 
     triplets_table['closest_1']=triplets_table['closest_1'].apply(lambda x: int(x))
     triplets_table['repeats_closest_1']=triplets_table['repeats_closest_1'].apply(lambda x: int(x))
@@ -213,7 +212,7 @@ def get_number_of_triplet_repeats(triplets_table):
     triplets_table['Repeats_2']=triplets_table['Repeats_2'].apply(lambda x: "NaN" if numpy.isnan(x) else round(x))
     triplets_table=triplets_table.filter(items=["Sample File","Sample", "Size 1", "Size 2", "Size 3", "closest_1", "closest_2", "closest_3","repeats_closest_1", "repeats_closest_2", "repeats_closest_3", "Repeats_1", "Repeats_2"])
 
-    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: numpy.nan if numpy.nan else int(x)) 
+    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: numpy.nan if numpy.isnan(x) else int(x))
     triplets_table["closest_3"]=triplets_table['closest_3'].apply(lambda x:  numpy.nan if x=="NaN" else int(x))
     triplets_table["repeats_closest_3"]=triplets_table['repeats_closest_3'].apply(lambda x:  float(x))
     triplets_table['difference']=(triplets_table["Size 3"]-triplets_table["closest_3"])/3
