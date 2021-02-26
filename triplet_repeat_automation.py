@@ -12,6 +12,8 @@ import numpy
 import xlwings
 from openpyxl import Workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
+import decimal
+from decimal import Decimal
 
 def get_triplets_table(gene, worksheet):
 
@@ -49,9 +51,10 @@ def get_triplets_table(gene, worksheet):
     triplets_table=triplets_table[triplets_table['Sample']!="NTC"] 
 
     #Round peak columns to the nearest integer
-    triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: None if numpy.isnan(x) else round(x) )
-    triplets_table['Size 2']=triplets_table['Size 2'].apply(lambda x: None if numpy.isnan(x) else round(x) )
-    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: None if numpy.isnan(x) else round(x) )
+    decimal.getcontext().rounding=decimal.ROUND_HALF_UP
+    triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: None if numpy.isnan(x) else int((Decimal(str(x)).quantize(Decimal("1")))))
+    triplets_table['Size 2']=triplets_table['Size 2'].apply(lambda x: None if numpy.isnan(x) else int((Decimal(str(x)).quantize(Decimal("1")))))
+    triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: None if numpy.isnan(x) else int((Decimal(str(x)).quantize(Decimal("1")))))
 
     return(triplets,triplets_table)
 
@@ -76,6 +79,7 @@ def match_control_samples_with_references(triplets,gene):
     controls_2=triplets[triplets['Sample']=="Control"]
 
     controls=pandas.concat([controls_1, controls_2])
+
     controls=controls.filter(items=["Sample2", "Size 1", "Size 2"])
 
     #Read in file of reference controls- xlwings used to allow reading of password protected excel spreadsheet
@@ -126,8 +130,8 @@ def get_closest_value(x, array):
     Input: Each value of Size columns in triplets table and an array of all peak sizes in controls table
     Output: size of peak in controls table closest to value of input
     '''
-    if (x==numpy.nan):
-        value=numpy.nan
+    if (numpy.isnan(x)):
+        value=x
     else:
         array_minus_x=abs(array-x)
         array_minus_x=array_minus_x.tolist()
@@ -143,12 +147,12 @@ def find_closest_control_peak_to_sample_peaks(triplets_table,controls):
     Match the peak values of each of the samples to the values in this list to find the closest.
     Add columns for the number of repeats that correspond to the closest peak values.
     '''
-
     #round the values of the peak columns
-    controls['Size 1']=controls['Size 1'].apply(lambda x: round(x))
-    controls['Size 2']=controls['Size 2'].apply(lambda x: round(x))
+    decimal.getcontext().rounding=decimal.ROUND_HALF_UP
+    controls['Size 1']=controls['Size 1'].apply(lambda x: float((Decimal(str(x)).quantize(Decimal("1")))))
+    controls['Size 2']=controls['Size 2'].apply(lambda x: float((Decimal(str(x)).quantize(Decimal("1")))))
 
-    #make a list of the peak sizes in the reference controls file  
+    #make a list of the peak sizes of the controls  
     list1=list(controls["Size 1"])
     list2=list(controls["Size 2"])
     list3=list(set(list1+list2))
@@ -169,6 +173,7 @@ def find_closest_control_peak_to_sample_peaks(triplets_table,controls):
     controls2=controls.filter(items=["Size 2","triplets_2"])
     controls2.columns=["Size","triplets"]
     controls_altered=pandas.concat([controls1, controls2])
+    controls_altered=controls_altered.drop_duplicates(subset="Size",keep="last")
 
     #Merge the controls table with triplets table, joining on closest_2 column to get the number of triplets each peak size correlates to 
     triplets_table=pandas.merge(left=triplets_table, right=controls_altered, how='left', left_on='closest_1', right_on='Size')
@@ -196,35 +201,35 @@ def get_number_of_triplet_repeats(triplets_table):
     Add his difference to the number of repeats in the control, to find the number of repeats the sample peak correlates to.
     Repeat this for all three peaks for all samples.
     '''
-    triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: int(x)) 
-    triplets_table['closest_1']=triplets_table['closest_1'].apply(lambda x: int(x))
-    triplets_table['repeats_closest_1']=triplets_table['repeats_closest_1'].apply(lambda x: int(x))
+
+    triplets_table['Size 1']=triplets_table['Size 1'].apply(lambda x: numpy.nan if numpy.isnan(x) else int(x))
+    triplets_table["closest_1"]=triplets_table['closest_1'].apply(lambda x:  numpy.nan if numpy.isnan(x) else int(x)) 
+    triplets_table['repeats_closest_1']=triplets_table['repeats_closest_1'].apply(lambda x: float(x))
     triplets_table['difference']=(triplets_table["Size 1"]-triplets_table["closest_1"])/3
     triplets_table["Repeats_1"]=triplets_table["repeats_closest_1"]+triplets_table["difference"]
-    triplets_table['Repeats_1']=triplets_table['Repeats_1'].apply(lambda x: round(x))
+    triplets_table['Repeats_1']=triplets_table['Repeats_1'].apply(lambda x: "NaN" if numpy.isnan(x) else int((Decimal(str(x)).quantize(Decimal("1")))))
     triplets_table=triplets_table.filter(items=["Sample File","Sample", "Size 1", "Size 2", "Size 3", "closest_1", "closest_2", "closest_3","repeats_closest_1", "repeats_closest_2", "repeats_closest_3", "Repeats_1"])
 
     triplets_table['Size 2']=triplets_table['Size 2'].apply(lambda x: numpy.nan if numpy.isnan(x) else int(x)) 
-    triplets_table["closest_2"]=triplets_table['closest_2'].apply(lambda x:  numpy.nan if x=="NaN" else int(x))
+    triplets_table["closest_2"]=triplets_table['closest_2'].apply(lambda x:  numpy.nan if numpy.isnan(x) else int(x))
     triplets_table["repeats_closest_2"]=triplets_table['repeats_closest_2'].apply(lambda x:  float(x))
     triplets_table['difference']=(triplets_table["Size 2"]-triplets_table["closest_2"])/3
     triplets_table["Repeats_2"]=triplets_table["repeats_closest_2"]+triplets_table["difference"]
-    triplets_table['Repeats_2']=triplets_table['Repeats_2'].apply(lambda x: "NaN" if numpy.isnan(x) else round(x))
+    triplets_table['Repeats_2']=triplets_table['Repeats_2'].apply(lambda x: "NaN" if numpy.isnan(x) else int((Decimal(str(x)).quantize(Decimal("1")))))
     triplets_table=triplets_table.filter(items=["Sample File","Sample", "Size 1", "Size 2", "Size 3", "closest_1", "closest_2", "closest_3","repeats_closest_1", "repeats_closest_2", "repeats_closest_3", "Repeats_1", "Repeats_2"])
 
     triplets_table['Size 3']=triplets_table['Size 3'].apply(lambda x: numpy.nan if numpy.isnan(x) else int(x))
-    triplets_table["closest_3"]=triplets_table['closest_3'].apply(lambda x:  numpy.nan if x=="NaN" else int(x))
+    triplets_table["closest_3"]=triplets_table['closest_3'].apply(lambda x:  numpy.nan if numpy.isnan(x) else int(x))
     triplets_table["repeats_closest_3"]=triplets_table['repeats_closest_3'].apply(lambda x:  float(x))
     triplets_table['difference']=(triplets_table["Size 3"]-triplets_table["closest_3"])/3
     triplets_table["Repeats_3"]=triplets_table["repeats_closest_3"]+triplets_table["difference"]
-    triplets_table['Repeats_3']=triplets_table['Repeats_3'].apply(lambda x: "NaN" if numpy.isnan(x) else round(x))
+    triplets_table['Repeats_3']=triplets_table['Repeats_3'].apply(lambda x: "NaN" if numpy.isnan(x) else int((Decimal(str(x)).quantize(Decimal("1")))))
     triplets_table=triplets_table.filter(items=["Sample File","Sample", "Size 1", "Size 2", "Size 3", "closest_1", "closest_2", "closest_3","repeats_closest_1", "repeats_closest_2", "repeats_closest_3", "Repeats_1", "Repeats_2", "Repeats_3"])
 
     return(triplets_table)
 
 
 def format_columns(triplets_table, controls, worksheet, gene):
-
 
     #Extract the sample, peak sizes and repeats columns and output table to a text file
     triplets_table=triplets_table.filter(items=["Sample File", "Size 1", "Size 2", "Size 3", "Repeats_1", "Repeats_2", "Repeats_3"])
