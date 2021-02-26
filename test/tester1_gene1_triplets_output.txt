@@ -1,0 +1,8 @@
+Sample File	Size 1	Size 2	Size 3	Repeats_1	Repeats_2	Repeats_3
+01_Sample1_worksheet1.fsa	306	406	265	36	61	21
+02_Sample2_worksheet1.fsa	300	385	NaN	34	54	NaN
+03_Sample3_worksheet1.fsa	342	NaN	NaN	51	NaN	NaN
+04_Sample4_worksheet1.fsa	362	NaN	NaN	46	NaN	NaN
+05_Sample5_worksheet1.fsa	288	486	288	30	88	30
+06_Sample6_worksheet1.fsa	306	NaN	NaN	36	NaN	NaN
+07_Sample7_worksheet1.fsa	315	387	NaN	42	55	NaN

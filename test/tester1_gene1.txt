@@ -1,0 +1,14 @@
+Sample File	Allele 1	Size 1	Height 1	Peak Area 1	Allele 2	Size 2	Height 2	Peak Area 2	Allele 3	Size 3	Height 3	Peak Area 3	Allele 4	Size 4	Height 4	Peak Area 4	Allele 5	Size 5	Height 5	Peak Area 5	Allele 6	Size 6	Height 6	Peak Area 6	Allele 7	Size 7	Height 7	Peak Area 7	Allele 8	Size 8	Height 8	Peak Area 8	Allele 9	Size 9	Height 9	Peak Area 9	Allele 10	Size 10	Height 10	Peak Area 10	
+01_Sample1_worksheet1.fsa	?	305.7	4586	4857.0	?	405.7	3855	1573.0	?	265.3	6937	2867.0																													
+02_Sample2_worksheet1.fsa	?	299.5	4878	3857.0	?	385.2	2857	1856.0																																	
+03_Sample3_worksheet1.fsa	?	341.9	5867	4867.0																																					
+04_Sample4_worksheet1.fsa	?	362.0	3756	3759.0																																				
+05_Sample5_worksheet1.fsa	?	287.8	2751	4749.0	?	486.1	5739	4756.0	?	288.9	4826	3767.0																												
+06_Sample6_worksheet1.fsa	?	305.7	5739	3857.0																																	
+07_Sample7_worksheet1.fsa	?	314.6	3857	4857.0	?	386.8	3867	2857.0																																
+08_Normal_Normal1_worksheet1.fsa	?	288.7	3856	5739.0	?	375.8	3857	2857.0																														
+09_Normal_Normal2_worksheet1.fsa	?	297.4	5756	3745.0	?	323.0	3285	2222.0																																
+10_Control_Control1_worksheet1.fsa	?	296.5	3657	2857.0	?	275.9	2856	4866.0																																
+11_Control_Control2_worksheet1.fsa	?	304.5	4756	3756.0	?	284.1	1856	6739.0																																	
+12_NTC_worksheet1.fsa																																								
+
